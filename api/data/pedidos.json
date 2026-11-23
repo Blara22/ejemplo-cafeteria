@@ -1,0 +1,36 @@
+[
+    {
+        "id": "6b0484ce15b60",
+        "nombre": "dfgdf",
+        "email": "blara.dev@gmail.com",
+        "items": [
+            {
+                "id": 1,
+                "cantidad": 1
+            },
+            {
+                "id": 2,
+                "cantidad": 1
+            },
+            {
+                "id": 4,
+                "cantidad": 1
+            }
+        ],
+        "total": 150,
+        "creado": "2026-11-23T19:24:14+01:00"
+    },
+    {
+        "id": "6b048513d69c7",
+        "nombre": "Brenda Cecilia Lara Rubio",
+        "email": "b.lara@uabcs.mx",
+        "items": [
+            {
+                "id": 2,
+                "cantidad": 1
+            }
+        ],
+        "total": 50,
+        "creado": "2026-11-23T19:25:23+01:00"
+    }
+]
