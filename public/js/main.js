@@ -1,5 +1,5 @@
 // PUNTO DE ENTRADA: estado, eventos y coordinación entre API, storage y vista.
-import { obtenerProductos, crearPedido } from "./api.js";
+import { obtenerProductos, crearPedido, crearProducto } from "./api.js";
 import { guardar, leer } from "./storage.js";
 import { esNombreValido, existeProducto, validarPedido } from "./validators.js";
 import {
@@ -174,7 +174,7 @@ function validarNombreProducto(campo) {
   campo.setCustomValidity(mensaje);
 }
 
-formProducto.addEventListener("submit", (evento) => {
+formProducto.addEventListener("submit", async (evento) => {
   evento.preventDefault();
   limpiarErrores(formProducto);
   validarNombreProducto(formProducto.elements.nombre);
@@ -185,14 +185,18 @@ formProducto.addEventListener("submit", (evento) => {
   }
 
   const { nombre, precio, emoji } = Object.fromEntries(new FormData(formProducto));
-  productos = [
-    ...productos,
-    { id: Date.now(), nombre: nombre.trim(), precio: Number(precio), emoji },
-  ];
-  pintarCatalogo();
-  mostrarMensaje(formProducto, "Producto agregado al menú. Este cambio es temporal.");
-  formProducto.reset();
-  formProducto.elements.nombre.focus();
+
+  try {
+    // El id lo genera MySQL (AUTO_INCREMENT), ya no Date.now()
+    const nuevo = await crearProducto({ nombre: nombre.trim(), precio: Number(precio), emoji });
+    productos = [...productos, nuevo];
+    pintarCatalogo();
+    mostrarMensaje(formProducto, "Producto agregado al menú.");
+    formProducto.reset();
+    formProducto.elements.nombre.focus();
+  } catch (error) {
+    mostrarMensaje(formProducto, error.message, true);
+  }
 });
 
 // ---------- FORMULARIO: validadores propios ----------
