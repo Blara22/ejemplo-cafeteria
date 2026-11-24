@@ -32,5 +32,22 @@
         ],
         "total": 50,
         "creado": "2026-11-23T19:25:23+01:00"
+    },
+    {
+        "id": "6b05e59e80ea5",
+        "nombre": "Ana López",
+        "email": "ana@mail.com",
+        "items": [
+            {
+                "id": 1,
+                "cantidad": 2
+            },
+            {
+                "id": 3,
+                "cantidad": 1
+            }
+        ],
+        "total": 110,
+        "creado": "2026-11-24T20:29:34+01:00"
     }
 ]
