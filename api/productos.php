@@ -1,6 +1,7 @@
 <?php 
 require __DIR__. '/helpers.php';
 require __DIR__ . '/db.php';
+require __DIR__ . '/auth.php';
 
 function validarProducto(array $d): array
 {
@@ -19,6 +20,10 @@ try {
     $pdo = conectar();
     $method = $_SERVER['REQUEST_METHOD'];
     $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
+
+    if ($method !== 'GET') {
+        requerirAdmin();   // consultar el menú es público; modificarlo no
+    }
 
     switch($method) {
         case 'GET':

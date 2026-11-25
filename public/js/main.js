@@ -1,5 +1,5 @@
 // PUNTO DE ENTRADA: estado, eventos y coordinación entre API, storage y vista.
-import { obtenerProductos, crearPedido, crearProducto } from "./api.js";
+import { obtenerProductos, crearPedido, crearProducto, registrar, login, logout, obtenerSesion } from "./api.js";
 import { guardar, leer } from "./storage.js";
 import { esNombreValido, existeProducto, validarPedido } from "./validators.js";
 import {
@@ -30,6 +30,7 @@ const CLAVES = {
 
 // ---------- ESTADO ----------
 let productos = [];
+let usuario = null;
 let carrito = leer(CLAVES.carrito, []);
 let favoritos = leer(CLAVES.favoritos, []);
 let tema = leer(CLAVES.tema, "claro");
@@ -102,6 +103,18 @@ function pintarCatalogo() {
 
 function pintarCarrito() {
   renderCarrito(carrito, productos, calcularTotal(carrito, productos));
+}
+
+function pintarSesion() {
+  document.querySelectorAll("[data-visible]").forEach((el) => {
+    const regla = el.dataset.visible;
+    el.hidden = !(
+      (regla === "anonimo" && !usuario) ||
+      (regla === "usuario" && usuario) ||
+      (regla === "admin" && usuario?.rol === "admin")
+    );
+  });
+  document.querySelector("#nombre-usuario").textContent = usuario?.nombre ?? "";
 }
 
 // ---------- DEBOUNCE ----------
@@ -203,8 +216,7 @@ formProducto.addEventListener("submit", async (evento) => {
 formPedido.addEventListener("submit", async (evento) => {
   evento.preventDefault();
   limpiarErrores(formPedido);
-  const datos = Object.fromEntries(new FormData(formPedido));
-  const errores = validarPedido(datos, carrito);
+  const errores = validarPedido(carrito);
 
   if (Object.keys(errores).length > 0) {
     mostrarErrores(formPedido, errores);
@@ -212,12 +224,12 @@ formPedido.addEventListener("submit", async (evento) => {
   }
 
   try {
-    const pedido = await crearPedido({ ...datos, items: carrito });
+    const pedido = await crearPedido({items: carrito });
     carrito = [];
     persistirCarrito();
     pintarCarrito();
     formPedido.reset();
-    alertaPedido(datos.nombre.trim(), pedido.total);
+    alertaPedido(usuario.nombre, pedido.total);
   } catch (error) {
     mostrarMensaje(formPedido, error.message, true);
   }
@@ -248,8 +260,33 @@ window.addEventListener("storage", (evento) => {
 // El registro de clics se conserva como ejemplo de burbujeo de la clase anterior.
 document.addEventListener("click", mostrarLog);
 
+const formRegistro = document.querySelector("#form-registro");
+const formLogin = document.querySelector("#form-login");
+
+async function entrar(accion, form) {
+  limpiarErrores(form);
+  try {
+    usuario = await accion(Object.fromEntries(new FormData(form)));
+    form.reset();
+    pintarSesion();
+  } catch (error) {
+    mostrarMensaje(form, error.message, true);
+  }
+}
+
+formRegistro.addEventListener("submit", (e) => { e.preventDefault(); entrar(registrar, formRegistro); });
+formLogin.addEventListener("submit", (e) => { e.preventDefault(); entrar(login, formLogin); });
+
+document.querySelector("#btn-logout").addEventListener("click", async () => {
+  await logout();
+  usuario = null;
+  pintarSesion();
+});
+
 // ---------- INICIALIZACIÓN ASÍNCRONA ----------
 async function iniciarAplicacion() {
+  usuario = await obtenerSesion();
+  pintarSesion();
   aplicarTema();
   mostrarEstadoCatalogo(null, "", "Cargando menú...");
   catalogo.setAttribute("aria-busy", "true");

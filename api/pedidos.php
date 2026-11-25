@@ -2,17 +2,19 @@
 
 require __DIR__ . '/helpers.php';
 require __DIR__ . '/db.php';
+require __DIR__ . '/auth.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     responder(['error' => 'Método no permitido'], 405);
 }
 
+$usuario = requerirLogin();
 $entrada = leerJson();
-$nombre  = trim($entrada['nombre'] ?? '');
-$email   = trim($entrada['email'] ?? '');
+$nombre  = $usuario['nombre'];   // ya no vienen del formulario
+$email   = $usuario['email'];
 $items   = $entrada['items'] ?? [];
 
-if (strlen($nombre) < 3 || !filter_var($email, FILTER_VALIDATE_EMAIL) || !is_array($items) || count($items) === 0) {
+if (!is_array($items) || count($items) === 0) {
     responder(['error' => 'Datos incompletos o inválidos'], 422);
 }
 
@@ -43,8 +45,16 @@ try {
     // 2) Guardar pedido + ítems: todo o nada
     $pdo->beginTransaction();
     try {
-        $stmt = $pdo->prepare('INSERT INTO pedidos (nombre, email, total) VALUES (:nombre, :email, :total)');
-        $stmt->execute(['nombre' => $nombre, 'email' => $email, 'total' => $total]);
+        $stmt = $pdo->prepare(
+            'INSERT INTO pedidos (nombre, email, total, usuario_id) VALUES (:nombre, :email, :total, :usuario)'
+        );
+        $stmt->execute([
+            'nombre'  => $nombre,
+            'email'   => $email,
+            'total'   => $total,
+            'usuario' => $usuario['id'],
+        ]);
+
         $pedidoId = (int) $pdo->lastInsertId();
 
         $stmtItem = $pdo->prepare(

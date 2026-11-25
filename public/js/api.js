@@ -52,3 +52,31 @@ export async function crearProducto(producto) {
   if (!respuesta.ok) throw new Error(datos.error ?? "No se pudo crear el producto");
   return datos;
 }
+
+async function enviar(url, datos) {
+  const respuesta = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos),
+  });
+  const cuerpo = await respuesta.json();
+  if (!respuesta.ok) {
+    const error = new Error(cuerpo.error ?? "Error inesperado");
+    error.status = respuesta.status;   // el front decide según 401, 403...
+    throw error;
+  }
+  return cuerpo;
+}
+
+export const registrar = (datos) => enviar("./../api/registro.php", datos);
+export const login = (datos) => enviar("./../api/login.php", datos);
+
+export async function logout() {
+  await fetch("./../api/logout.php", { method: "POST" });
+}
+
+export async function obtenerSesion() {
+  const respuesta = await fetch("./../api/sesion.php");
+  const datos = await respuesta.json();
+  return datos.usuario;   // null si es visitante
+}

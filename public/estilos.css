@@ -171,6 +171,9 @@ input.invalido, select.invalido { border-color: var(--color-error); background: 
   white-space: nowrap;
   border: 0;
 }
+
+[hidden] { display: none !important; }
+
 @media (max-width: 760px) {
   main { grid-template-columns: 1fr; padding: var(--espacio-l); }
   .encabezado { align-items: flex-start; flex-direction: column; }

@@ -15,10 +15,44 @@
         <button id="btn-tema" type="button" aria-pressed="false" aria-label="Cambiar tema de color">
           🌙 Modo oscuro
         </button>
+        <div data-visible="usuario">
+          Hola, <span id="nombre-usuario"></span>
+          <button id="btn-logout" type="button">Cerrar sesión</button>
+        </div>
       </div>
     </header>
 
     <main>
+      <section data-visible="anonimo" aria-labelledby="titulo-acceso">
+        <h2 id="titulo-acceso">Acceso</h2>
+      
+        <form id="form-login" novalidate>
+          <h3>Iniciar sesión</h3>
+          <div class="campo"><label for="l-email">Correo</label>
+            <input id="l-email" name="email" type="email" required autocomplete="email" />
+          </div>
+          <div class="campo"><label for="l-pass">Contraseña</label>
+            <input id="l-pass" name="password" type="password" required autocomplete="current-password" />
+          </div>
+          <button type="submit">Entrar</button>
+          <p class="mensaje" role="status" aria-live="polite"></p>
+        </form>
+      
+        <form id="form-registro" novalidate>
+          <h3>Crear cuenta</h3>
+          <div class="campo"><label for="r-nombre">Nombre</label>
+            <input id="r-nombre" name="nombre" required minlength="3" autocomplete="name" />
+          </div>
+          <div class="campo"><label for="r-email">Correo</label>
+            <input id="r-email" name="email" type="email" required autocomplete="email" />
+          </div>
+          <div class="campo"><label for="r-pass">Contraseña (mínimo 8)</label>
+            <input id="r-pass" name="password" type="password" required minlength="8" autocomplete="new-password" />
+          </div>
+          <button type="submit">Crear cuenta</button>
+          <p class="mensaje" role="status" aria-live="polite"></p>
+        </form>
+      </section>
       <section aria-labelledby="titulo-menu">
         <h2 id="titulo-menu">Menú</h2>
         <div class="buscador campo">
@@ -38,7 +72,7 @@
         </p>
         <div id="catalogo" aria-label="Productos disponibles"></div>
 
-        <form id="form-producto" novalidate>
+        <form data-visible="admin" id="form-producto" novalidate>
           <h2>Agregar un producto al menú</h2>
           <div class="campo">
             <label for="p-nombre">Nombre</label>
@@ -69,19 +103,10 @@
 
         <form id="form-pedido" novalidate>
           <h2>Confirmar pedido</h2>
-          <div class="campo">
-            <label for="c-nombre">Tu nombre</label>
-            <input id="c-nombre" name="nombre" required minlength="3" autocomplete="name" aria-describedby="error-pedido-nombre" />
-            <span id="error-pedido-nombre" class="error-campo" data-error-para="nombre"></span>
-          </div>
-          <div class="campo">
-            <label for="c-email">Correo</label>
-            <input id="c-email" name="email" type="email" required autocomplete="email" aria-describedby="error-pedido-email" />
-            <span id="error-pedido-email" class="error-campo" data-error-para="email"></span>
-          </div>
           <span class="error-campo" data-error-para="carrito" role="alert"></span>
           <button type="submit">Confirmar pedido</button>
           <p class="mensaje" role="status" aria-live="polite"></p>
+          <p data-visible="anonimo">Inicia sesión para confirmar tu pedido.</p>
         </form>
         <p id="log" aria-label="Registro de eventos">Haz clic en cualquier lugar…</p>
       </section>
